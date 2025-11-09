@@ -206,10 +206,9 @@ def compute_teacher_log_probs(
         raise ValueError("OPD requires a teacher model. Please configure a reference policy as the teacher.")
     
     # Compute teacher logprobs (reusing reference policy infrastructure)
-    if not ref_in_actor:
-        teacher_output = teacher_wg.compute_ref_log_prob(data)
-    else:
-        teacher_output = teacher_wg.compute_ref_log_prob(data)
+    # Note: teacher_wg is already the correct worker group (ref_policy_wg or actor_rollout_wg)
+    # based on ref_in_actor, so we don't need to branch here
+    teacher_output = teacher_wg.compute_ref_log_prob(data)
     
     # Rename ref_log_probs to teacher_log_probs for clarity
     if "ref_log_probs" in teacher_output.batch:

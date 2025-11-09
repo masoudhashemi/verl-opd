@@ -450,11 +450,3 @@ class MyCustomSplitter(TextSplitter):
 # Use in config:
 # algorithm.opd_text_splitter.name=custom_pipe
 ```
-
----
-
-**Status**: ✅ Ready to use  
-**Version**: v0.2.0 (with text splitting)  
-**Date**: 2025-01-09
-
-
