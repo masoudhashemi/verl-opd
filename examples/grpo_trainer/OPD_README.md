@@ -47,8 +47,8 @@ Unlike traditional methods:
 # Set advantage estimator to OPD
 algorithm.adv_estimator=opd
 
-# Enable reference policy (acts as teacher)
-actor_rollout_ref.ref.log_prob_estimator_enable=True
+# Teacher model is automatically enabled when using OPD
+# (No additional config needed - algorithm.adv_estimator=opd enables it)
 
 # Disable KL loss (advantages already encode teacher preference)
 actor_rollout_ref.actor.use_kl_loss=False
@@ -169,14 +169,12 @@ actor_rollout_ref.actor.loss_agg_mode: "token-mean"
 
 **Cause**: Teacher logprobs not computed before advantage estimation.
 
-**Solution**: Ensure reference policy is enabled:
-```bash
-actor_rollout_ref.ref.log_prob_estimator_enable=True
-```
+**Solution**: This should be automatically enabled when `algorithm.adv_estimator=opd`.
+If you see this error, ensure you're using the latest version of the code.
 
 ### Error: "OPD requires a reference policy to act as teacher"
 
-**Cause**: `adv_estimator=opd` but reference policy disabled.
+**Cause**: Reference policy (teacher) not created. This should not happen with correct OPD configuration.
 
 **Solution**: Enable reference policy as shown above.
 

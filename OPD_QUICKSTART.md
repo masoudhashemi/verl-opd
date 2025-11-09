@@ -35,7 +35,6 @@ bash examples/grpo_trainer/run_qwen3-32b_to_8b_opd.sh
 python -m verl.trainer.main_ppo \
     algorithm.adv_estimator=opd \
     actor_rollout_ref.model.path=Qwen/Qwen3-8B \
-    actor_rollout_ref.ref.log_prob_estimator_enable=true \
     actor_rollout_ref.ref.model.path=Qwen/Qwen3-32B \
     actor_rollout_ref.actor.use_kl_loss=false \
     data.train_files=$HOME/data/gsm8k/train.parquet
@@ -45,13 +44,13 @@ python -m verl.trainer.main_ppo \
 
 | Setting | GRPO | OPD |
 |---------|------|-----|
-| `algorithm.adv_estimator` | `grpo` | `opd` |
-| `actor_rollout_ref.ref.log_prob_estimator_enable` | `false` | `true` ⚠️ |
+| `algorithm.adv_estimator` | `grpo` | `opd` ⚠️ |
 | `actor_rollout_ref.actor.use_kl_loss` | `true` | `false` |
 | `actor_rollout_ref.rollout.n` | `>1` (e.g., 5) | `≥1` (can use 1) |
 | `algorithm.norm_adv_by_std_in_grpo` | `true` | `false` |
+| `algorithm.use_kl_in_reward` | varies | `false` |
 
-⚠️ = **Required for OPD**
+⚠️ = **Setting this automatically enables teacher model**
 
 ## Documentation
 
@@ -133,10 +132,8 @@ python3 tests/trainer/test_opd_advantage.py
 
 ### Error: "OPD requires a reference policy to act as teacher"
 
-**Solution**: Enable reference policy:
-```bash
-actor_rollout_ref.ref.log_prob_estimator_enable=true
-```
+**Solution**: This should be automatically enabled when using `algorithm.adv_estimator=opd`.
+If you see this error, ensure you're using the latest version of the code.
 
 ### Error: "OPD requires 'teacher_log_probs' in kwargs"
 

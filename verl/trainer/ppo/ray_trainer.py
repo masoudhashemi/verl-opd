@@ -1205,7 +1205,8 @@ class RayPPOTrainer:
                             if not self.use_reference_policy:
                                 raise ValueError(
                                     "OPD requires a reference policy to act as teacher. "
-                                    "Please set actor_rollout_ref.ref.log_prob_estimator_enable=true"
+                                    "This should be automatically enabled when algorithm.adv_estimator=opd. "
+                                    "If you see this error, there may be an issue with the configuration."
                                 )
                             # Compute teacher logprobs (reuse ref policy infrastructure)
                             teacher_log_probs = compute_teacher_log_probs(

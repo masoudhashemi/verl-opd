@@ -68,7 +68,7 @@ class AdvantageEstimator(str, Enum):
 
 1. **`examples/grpo_trainer/run_qwen3-8b_opd.sh`**
    - Basic OPD training with same model as teacher
-   - Key configs: `algorithm.adv_estimator=opd`, `ref.log_prob_estimator_enable=True`
+   - Key config: `algorithm.adv_estimator=opd` (automatically enables teacher model)
 
 2. **`examples/grpo_trainer/run_qwen3-32b_to_8b_opd.sh`**
    - Teacher-student distillation (32B → 8B)
@@ -138,12 +138,12 @@ algorithm:
   norm_adv_by_std_in_grpo: false  # Optional, typically false
   use_kl_in_reward: false
 
-# Enable teacher (via reference policy)
+# Teacher model configuration (optional - different from student)
 actor_rollout_ref:
   ref:
-    log_prob_estimator_enable: true  # REQUIRED
+    # Teacher is automatically enabled when algorithm.adv_estimator=opd
     model:
-      path: "Qwen/Qwen3-32B"  # Optional: different teacher
+      path: "Qwen/Qwen3-32B"  # Optional: different teacher model
   
   # Student settings
   actor:
@@ -194,7 +194,6 @@ print("✓ OPD imports successful")
 # Dry-run to check config parsing
 python -m verl.trainer.main_ppo \
     algorithm.adv_estimator=opd \
-    actor_rollout_ref.ref.log_prob_estimator_enable=true \
     --cfg job \
     --help
 ```
@@ -212,19 +211,17 @@ bash examples/grpo_trainer/run_qwen3-8b_opd.sh \
 
 ### Command Line
 ```bash
-# Basic OPD training
+# Basic OPD training (self-distillation)
 python -m verl.trainer.main_ppo \
     algorithm.adv_estimator=opd \
     actor_rollout_ref.model.path=Qwen/Qwen3-8B \
-    actor_rollout_ref.ref.log_prob_estimator_enable=true \
     actor_rollout_ref.actor.use_kl_loss=false
 
-# Teacher-student distillation
+# Teacher-student distillation (different models)
 python -m verl.trainer.main_ppo \
     algorithm.adv_estimator=opd \
     actor_rollout_ref.model.path=Qwen/Qwen3-8B \
-    actor_rollout_ref.ref.model.path=Qwen/Qwen3-32B \
-    actor_rollout_ref.ref.log_prob_estimator_enable=true
+    actor_rollout_ref.ref.model.path=Qwen/Qwen3-32B
 ```
 
 ### Python API
@@ -260,10 +257,12 @@ Based on the original OPD paper:
 ### Common Issues
 
 1. **"OPD requires 'teacher_log_probs'"**
-   - **Fix**: Set `actor_rollout_ref.ref.log_prob_estimator_enable=true`
+   - **Cause**: Teacher model not properly initialized
+   - **Fix**: Ensure you're using `algorithm.adv_estimator=opd` (teacher is auto-enabled)
 
 2. **"OPD requires a reference policy"**
-   - **Fix**: Same as above, enable reference policy
+   - **Cause**: Should not happen with correct configuration
+   - **Fix**: Verify `algorithm.adv_estimator=opd` is set
 
 3. **High GPU memory usage**
    - **Fix**: Offload teacher with `ref.fsdp_config.param_offload=true`

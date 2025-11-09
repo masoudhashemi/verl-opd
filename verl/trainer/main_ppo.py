@@ -225,10 +225,19 @@ class TaskRunner:
                 self.mapping[Role.RewardModel] = "global_pool"
 
     def add_ref_policy_worker(self, config, ref_policy_cls):
-        """Add reference policy worker if KL loss or KL reward is used."""
+        """Add reference policy worker if KL loss, KL reward, or OPD teacher is used."""
         from verl.trainer.ppo.ray_trainer import Role
 
-        if config.algorithm.use_kl_in_reward or config.actor_rollout_ref.actor.use_kl_loss:
+        # Enable ref policy for:
+        # 1. Traditional KL-based methods (PPO with KL loss/penalty)
+        # 2. OPD (where ref policy acts as teacher for distillation)
+        needs_ref_policy = (
+            config.algorithm.use_kl_in_reward
+            or config.actor_rollout_ref.actor.use_kl_loss
+            or config.algorithm.adv_estimator == "opd"
+        )
+
+        if needs_ref_policy:
             self.role_worker_mapping[Role.RefPolicy] = ray.remote(ref_policy_cls)
             self.mapping[Role.RefPolicy] = "global_pool"
 

@@ -86,8 +86,8 @@ def create_opd_config(
             },
             
             # Reference/Teacher policy settings
+            # Note: Teacher model is automatically enabled when algorithm.adv_estimator=opd
             "ref": {
-                "log_prob_estimator_enable": True,  # REQUIRED for OPD
                 "model": {
                     "path": teacher_model_path or student_model_path,
                 },
